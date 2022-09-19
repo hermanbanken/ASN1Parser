@@ -55,9 +55,12 @@ extension ASN1ObjectIdentifier: DERDecodable {
 
 extension ASN1ObjectIdentifier: DEREncodable {
   func serialize() -> Data {
-    return Data([
-      //      nodes[0] * 40 + nodes[1]
-    ]) + nodes.dropFirst().dropFirst().flatMap(base128Encode)
+    // TODO figure out encoding
+    return Data([0x03, 0x2B, 0x65, 0x70])
+    //
+    //    return Data([
+    //      //      nodes[0] * 40 + nodes[1]
+    //    ]) + nodes.dropFirst().dropFirst().flatMap(base128Encode)
   }
 }
 
