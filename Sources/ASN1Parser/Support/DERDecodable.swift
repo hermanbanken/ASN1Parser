@@ -10,3 +10,8 @@ import Foundation
 protocol DERDecodable {
   init(der: Data) throws
 }
+
+
+protocol DEREncodable {
+  func serialize() -> Data
+}

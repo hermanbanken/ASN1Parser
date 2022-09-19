@@ -24,3 +24,11 @@ extension ASN1BitString: DERDecodable {
     self.paddingLength = lastUnused
   }
 }
+
+extension ASN1BitString: DEREncodable {
+  func serialize() -> Data {
+    return Data([UInt8(paddingLength)] + (0..<bytes.count).map { (i: Int) in
+      UInt8(bytes[i] << paddingLength) | UInt8(i > 0 ? bytes[i-1] >> (8 - paddingLength) : 0x00)
+    })
+  }
+}

@@ -32,3 +32,11 @@ extension ASN1Integer: DERDecodable {
     }
   }
 }
+
+extension ASN1Integer: DEREncodable {
+  func serialize() -> Data {
+    // TODO correct Base128 conversion,
+    // see https://gist.github.com/hfossli/00adac5c69116e7498e107d8d5ec61d4
+    return swiftValue.serialize()
+  }
+}

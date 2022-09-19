@@ -52,3 +52,17 @@ extension ASN1ObjectIdentifier: DERDecodable {
     assert(baseOffset == der.endIndex)
   }
 }
+
+extension ASN1ObjectIdentifier: DEREncodable {
+  func serialize() -> Data {
+    return Data([
+      //      nodes[0] * 40 + nodes[1]
+    ]) + nodes.dropFirst().dropFirst().flatMap(base128Encode)
+  }
+}
+
+func base128Encode(bi: BigUInt) -> Data {
+      // TODO correct Base128 encoding
+      // see https://gist.github.com/hfossli/00adac5c69116e7498e107d8d5ec61d4
+      return bi.serialize()
+}

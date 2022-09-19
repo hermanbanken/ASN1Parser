@@ -36,7 +36,7 @@ public struct ASN1BitString: ASN1Value {
         .dropFirst(paddingLength)
     )
   }
-  
+
   /**
    - Parameter value: bytes of the bitstring in little endian order, i.e., least significant byte first. Any
       padding bytes should be prepended, i.e., padding bits begin in the leading bit of the first byte.
