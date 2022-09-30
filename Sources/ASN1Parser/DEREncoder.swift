@@ -21,7 +21,8 @@ public struct DEREncoder {
     case let value as ASN1Integer:
       return [Tag.integer.rawValue] + value.serialize()
     case let value as ASN1ObjectIdentifier:
-      return [Tag.objectIdentifier.rawValue] + value.serialize()
+      let oid = value.serialize()
+      return [Tag.objectIdentifier.rawValue] + base128Encode(oid.count) + oid
     case let value as ASN1Sequence:
       let data = value.values.flatMap({ DEREncoder.encode(der: $0) })
       return Data([Tag.sequence.rawValue, UInt8(data.count)] + data)

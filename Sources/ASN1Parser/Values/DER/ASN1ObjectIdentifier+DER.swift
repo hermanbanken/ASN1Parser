@@ -12,7 +12,7 @@ extension ASN1ObjectIdentifier: DERDecodable {
   /// https://docs.microsoft.com/en-us/windows/win32/seccertenroll/about-object-identifier
   init(der: Data) throws {
     let firstByte = try der.tryAccess(at: der.startIndex)
-    
+
     // parse first byte
     nodes.append(BigUInt(firstByte / 40))
     nodes.append(BigUInt(firstByte % 40))
@@ -54,18 +54,29 @@ extension ASN1ObjectIdentifier: DERDecodable {
 }
 
 extension ASN1ObjectIdentifier: DEREncodable {
+  // See https://gist.github.com/hfossli/00adac5c69116e7498e107d8d5ec61d4
   func serialize() -> Data {
-    // TODO figure out encoding
-    return Data([0x03, 0x2B, 0x65, 0x70])
-    //
-    //    return Data([
-    //      //      nodes[0] * 40 + nodes[1]
-    //    ]) + nodes.dropFirst().dropFirst().flatMap(base128Encode)
+    // First and second nodes are in 1 output byte
+    let firstNode = nodes.first ?? BigUInt(0)
+    let secondNode = nodes.dropFirst(1).first ?? BigUInt(0)
+    let combined = UInt8(firstNode.multiplied(by: 40) + secondNode)
+    let mapped: [Int] = nodes.dropFirst(2).compactMap({ node in
+      guard let word = node.words.first else {return nil}
+      return Int(word)
+    })
+    return Data([combined]) + mapped.flatMap(base128Encode)
   }
 }
 
-func base128Encode(bi: BigUInt) -> Data {
-      // TODO correct Base128 encoding
-      // see https://gist.github.com/hfossli/00adac5c69116e7498e107d8d5ec61d4
-      return bi.serialize()
+// See https://gist.github.com/hfossli/00adac5c69116e7498e107d8d5ec61d4
+func base128Encode(_ int: Int) -> Data {
+    var result = Data()
+    var value = int
+    repeat {
+        let byte = UInt8(value & 0b0111_1111) | 0b1000_0000
+        result.insert(byte, at: 0)
+        value >>= 7
+    } while value != 0
+    result.append((result.popLast() ?? 0) & 0b0111_1111)
+    return result
 }
